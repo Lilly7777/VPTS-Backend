@@ -1,11 +1,9 @@
 package com.lilly.lubenova.vptsrest.controller;
 
-import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthException;
-import com.google.firebase.auth.FirebaseToken;
+import com.lilly.lubenova.vptsrest.authenticator.Authenticator;
 import com.lilly.lubenova.vptsrest.model.User;
 import com.lilly.lubenova.vptsrest.repository.UserRepository;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -18,17 +16,15 @@ public class UserController {
     @Autowired
     protected UserRepository userRepository;
 
+    @Autowired
+    protected Authenticator authenticator;
+
     @PostMapping(value = "/user", consumes = {MediaType.APPLICATION_JSON_VALUE}, produces = {MediaType.APPLICATION_JSON_VALUE})
-    public ResponseEntity<User> createUser(@RequestHeader(name = "Authorization", required = true) String authHeader, @RequestBody User user) {
-        String token = StringUtils.substringAfter(authHeader, "Bearer ").trim();
-        FirebaseToken decodedToken = null;
-        try {
-            decodedToken = FirebaseAuth.getInstance().verifyIdToken(token);
-        } catch (FirebaseAuthException e) {
-            e.printStackTrace();
+    public ResponseEntity<User> createUser(@RequestHeader(name = "Authorization", required = true) String authHeader, @RequestBody User user) throws FirebaseAuthException {
+        String uid = authenticator.authentication(authHeader);
+        if (uid.equals("401")) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);
         }
-        String uid = decodedToken.getUid();
         if (uid.equals(user.getUserId())) {
             if (userRepository.findById(uid).block() != null) {
                 return ResponseEntity.status(HttpStatus.CONFLICT).body(null);
@@ -41,17 +37,11 @@ public class UserController {
     }
 
     @GetMapping("/user/{userId}")
-    public ResponseEntity<User> getUser(@PathVariable("userId") String userId, @RequestHeader(name = "Authorization", required = true) String authHeader) {
-        String token = StringUtils.substringAfter(authHeader, "Bearer ").trim();
-        FirebaseToken decodedToken = null;
-        try {
-            decodedToken = FirebaseAuth.getInstance().verifyIdToken(token);
-        } catch (FirebaseAuthException e) {
-            e.printStackTrace();
+    public ResponseEntity<User> getUser(@RequestHeader(name = "Authorization", required = true) String authHeader, @PathVariable("userId") String userId) throws FirebaseAuthException {
+        String uid = authenticator.authentication(authHeader);
+        if (uid.equals("401")) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);
         }
-        String uid = decodedToken.getUid();
-
         if (uid.equals(userId)) {
             User user = userRepository.findById(uid).block();
             if (user == null) {
@@ -62,4 +52,5 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body(null);
         }
     }
+
 }
