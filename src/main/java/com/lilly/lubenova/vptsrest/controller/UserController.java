@@ -52,5 +52,22 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body(null);
         }
     }
-
+    
+    @DeleteMapping("/user/{userId}")
+    public ResponseEntity<User> deleteUser(@RequestHeader(name = "Authorization", required = true) String authHeader, @PathVariable("userId") String userId) throws FirebaseAuthException {
+        String uid = authenticator.authentication(authHeader);
+        if (uid.equals("401")) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);
+        }
+        if (uid.equals(userId)) {
+            User user = userRepository.findById(uid).block();
+            if (user == null) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+            }
+            userRepository.delete(user).block();
+            return ResponseEntity.status(HttpStatus.NO_CONTENT).body(null);
+        } else {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(null);
+        }
+    }
 }
