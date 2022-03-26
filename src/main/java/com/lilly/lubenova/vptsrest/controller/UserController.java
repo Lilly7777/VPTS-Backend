@@ -1,5 +1,6 @@
 package com.lilly.lubenova.vptsrest.controller;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.firebase.auth.FirebaseAuthException;
 import com.lilly.lubenova.vptsrest.authenticator.Authenticator;
 import com.lilly.lubenova.vptsrest.model.Device;
@@ -78,7 +79,7 @@ public class UserController {
             if (user == null) {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
             }
-            userRepository.delete(user).block();
+            userRepository.deleteById(uid).block();
             return ResponseEntity.status(HttpStatus.NO_CONTENT).body(null);
         } else {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body(null);
@@ -86,7 +87,7 @@ public class UserController {
     }
 
     @PutMapping("/user/{userId}")
-    public ResponseEntity<User> editUser(@RequestHeader(name = "Authorization", required = true) String authHeader, @PathVariable("userId") String userId, @RequestBody User editedUser) {
+    public ResponseEntity<User> editUser(@RequestHeader(name = "Authorization", required = true) String authHeader, @PathVariable("userId") String userId, @RequestBody User editedUser) throws JsonProcessingException {
         String uid;
         try {
             uid = authenticator.authentication(authHeader);
@@ -126,7 +127,5 @@ public class UserController {
         } else {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body(null);
         }
-
     }
-
 }

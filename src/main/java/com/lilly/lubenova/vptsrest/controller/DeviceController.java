@@ -66,7 +66,7 @@ public class DeviceController {
         if (device == null) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
         }
-        deviceRepository.delete(device).block();
+        deviceRepository.deleteById(deviceId).block();
         return ResponseEntity.status(HttpStatus.NO_CONTENT).body(null);
     }
 
