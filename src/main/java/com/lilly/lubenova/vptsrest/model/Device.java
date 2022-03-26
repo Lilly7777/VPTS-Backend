@@ -20,7 +20,7 @@ public class Device {
 
     private String certificateNo;
 
-    private String carRegistrationNumber;
+    private String vehicleRegistrationNumber;
 
     public Device() {
     }
@@ -36,16 +36,14 @@ public class Device {
         return deviceId;
     }
 
-    public void setDeviceId(String deviceId) {
-        this.deviceId = deviceId;
-    }
-
     @PropertyName("date_registered")
     @JsonProperty("date_registered")
     public Date getDateRegistered() {
         return dateRegistered;
     }
 
+    @PropertyName("date_registered")
+    @JsonProperty("date_registered")
     public void setDateRegistered(Date dateRegistered) {
         this.dateRegistered = dateRegistered;
     }
@@ -56,6 +54,8 @@ public class Device {
         return userId;
     }
 
+    @PropertyName("user_id")
+    @JsonProperty("user_id")
     public void setUserId(String userId) {
         this.userId = userId;
     }
@@ -66,17 +66,21 @@ public class Device {
         return certificateNo;
     }
 
+    @PropertyName("device_certificate_no")
+    @JsonProperty("device_certificate_no")
     public void setCertificateNo(String certificateNo) {
         this.certificateNo = certificateNo;
     }
 
-    @PropertyName("car_registration_number")
-    @JsonProperty("car_registration_number")
-    public String getCarRegistrationNumber() {
-        return carRegistrationNumber;
+    @PropertyName("vehicle_registration_number")
+    @JsonProperty("vehicle_registration_number")
+    public String getVehicleRegistrationNumber() {
+        return vehicleRegistrationNumber;
     }
 
-    public void setCarRegistrationNumber(String carRegistrationNumber) {
-        this.carRegistrationNumber = carRegistrationNumber;
+    @PropertyName("vehicle_registration_number")
+    @JsonProperty("vehicle_registration_number")
+    public void setVehicleRegistrationNumber(String vehicleRegistrationNumber) {
+        this.vehicleRegistrationNumber = vehicleRegistrationNumber;
     }
 }

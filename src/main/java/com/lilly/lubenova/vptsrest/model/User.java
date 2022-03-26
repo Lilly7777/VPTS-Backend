@@ -43,16 +43,14 @@ public class User {
         return userId;
     }
 
-    public void setUserId(String userId) {
-        this.userId = userId;
-    }
-
     @PropertyName("full_name")
     @JsonProperty("full_name")
     public String getFullName() {
         return fullName;
     }
 
+    @PropertyName("full_name")
+    @JsonProperty("full_name")
     public void setFullName(String fullName) {
         this.fullName = fullName;
     }
@@ -63,6 +61,8 @@ public class User {
         return phoneNumber;
     }
 
+    @PropertyName("phone_number")
+    @JsonProperty("phone_number")
     public void setPhoneNumber(String phoneNumber) {
         this.phoneNumber = phoneNumber;
     }
@@ -73,6 +73,8 @@ public class User {
         return location;
     }
 
+    @PropertyName("location")
+    @JsonProperty("location")
     public void setLocation(String location) {
         this.location = location;
     }
@@ -83,6 +85,8 @@ public class User {
         return dateRegistered;
     }
 
+    @PropertyName("date_registered")
+    @JsonProperty("date_registered")
     public void setDateRegistered(Date dateRegistered) {
         this.dateRegistered = dateRegistered;
     }

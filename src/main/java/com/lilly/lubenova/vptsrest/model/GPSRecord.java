@@ -35,16 +35,14 @@ public class GPSRecord {
         return id;
     }
 
-    public void setId(String id) {
-        this.id = id;
-    }
-
     @PropertyName("device_id")
     @JsonProperty("device_id")
     public String getDeviceId() {
         return deviceId;
     }
 
+    @PropertyName("device_id")
+    @JsonProperty("device_id")
     public void setDeviceId(String deviceId) {
         this.deviceId = deviceId;
     }
@@ -55,6 +53,8 @@ public class GPSRecord {
         return location;
     }
 
+    @PropertyName("location")
+    @JsonProperty("location")
     public void setLocation(GeoPoint location) {
         this.location = location;
     }
@@ -65,6 +65,8 @@ public class GPSRecord {
         return recordTimestamp;
     }
 
+    @PropertyName("record_timestamp")
+    @JsonProperty("record_timestamp")
     public void setRecordTimestamp(Date recordTimestamp) {
         this.recordTimestamp = recordTimestamp;
     }
