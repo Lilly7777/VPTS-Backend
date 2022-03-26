@@ -13,11 +13,11 @@ public class User {
     @DocumentId
     private String userId;
 
-    private String fullName;
+    private String fullName = null;
 
-    private String phoneNumber;
+    private String phoneNumber = null;
 
-    private String location;
+    private String location = null;
 
     private Date dateRegistered = new Date();
 

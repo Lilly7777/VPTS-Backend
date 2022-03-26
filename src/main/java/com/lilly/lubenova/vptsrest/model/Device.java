@@ -20,6 +20,8 @@ public class Device {
 
     private String certificateNo;
 
+    private String carRegistrationNumber;
+
     public Device() {
     }
 
@@ -66,5 +68,15 @@ public class Device {
 
     public void setCertificateNo(String certificateNo) {
         this.certificateNo = certificateNo;
+    }
+
+    @PropertyName("car_registration_number")
+    @JsonProperty("car_registration_number")
+    public String getCarRegistrationNumber() {
+        return carRegistrationNumber;
+    }
+
+    public void setCarRegistrationNumber(String carRegistrationNumber) {
+        this.carRegistrationNumber = carRegistrationNumber;
     }
 }
