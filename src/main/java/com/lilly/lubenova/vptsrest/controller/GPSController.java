@@ -22,9 +22,10 @@ public class GPSController {
     protected Authenticator authenticator;
 
     @GetMapping("/gps/{gpsRecordId}")
-    public ResponseEntity<GPSRecord> getGPSRecord(@RequestHeader(name = "Authorization", required = true) String authHeader, @PathVariable("gpsRecordId") String gpsRecordId) throws FirebaseAuthException {
-        String uid = authenticator.authentication(authHeader);
-        if (uid.equals("401")) {
+    public ResponseEntity<GPSRecord> getGPSRecord(@RequestHeader(name = "Authorization", required = true) String authHeader, @PathVariable("gpsRecordId") String gpsRecordId) {
+        try {
+            authenticator.authentication(authHeader);
+        } catch (FirebaseAuthException e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);
         }
         GPSRecord gpsRecord = gpsRepository.findById(gpsRecordId).block();

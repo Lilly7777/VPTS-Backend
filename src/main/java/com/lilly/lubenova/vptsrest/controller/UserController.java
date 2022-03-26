@@ -20,9 +20,11 @@ public class UserController {
     protected Authenticator authenticator;
 
     @PostMapping(value = "/user", consumes = {MediaType.APPLICATION_JSON_VALUE}, produces = {MediaType.APPLICATION_JSON_VALUE})
-    public ResponseEntity<User> createUser(@RequestHeader(name = "Authorization", required = true) String authHeader, @RequestBody User user) throws FirebaseAuthException {
-        String uid = authenticator.authentication(authHeader);
-        if (uid.equals("401")) {
+    public ResponseEntity<User> createUser(@RequestHeader(name = "Authorization", required = false) String authHeader, @RequestBody User user) {
+        String uid;
+        try {
+            uid = authenticator.authentication(authHeader);
+        } catch (FirebaseAuthException e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);
         }
         if (uid.equals(user.getUserId())) {
@@ -37,9 +39,11 @@ public class UserController {
     }
 
     @GetMapping("/user/{userId}")
-    public ResponseEntity<User> getUser(@RequestHeader(name = "Authorization", required = true) String authHeader, @PathVariable("userId") String userId) throws FirebaseAuthException {
-        String uid = authenticator.authentication(authHeader);
-        if (uid.equals("401")) {
+    public ResponseEntity<User> getUser(@RequestHeader(name = "Authorization", required = true) String authHeader, @PathVariable("userId") String userId) {
+        String uid;
+        try {
+            uid = authenticator.authentication(authHeader);
+        } catch (FirebaseAuthException e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);
         }
         if (uid.equals(userId)) {
@@ -52,11 +56,13 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body(null);
         }
     }
-    
+
     @DeleteMapping("/user/{userId}")
-    public ResponseEntity<User> deleteUser(@RequestHeader(name = "Authorization", required = true) String authHeader, @PathVariable("userId") String userId) throws FirebaseAuthException {
-        String uid = authenticator.authentication(authHeader);
-        if (uid.equals("401")) {
+    public ResponseEntity<User> deleteUser(@RequestHeader(name = "Authorization", required = true) String authHeader, @PathVariable("userId") String userId) {
+        String uid;
+        try {
+            uid = authenticator.authentication(authHeader);
+        } catch (FirebaseAuthException e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);
         }
         if (uid.equals(userId)) {

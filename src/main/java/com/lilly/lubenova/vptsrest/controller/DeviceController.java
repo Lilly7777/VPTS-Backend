@@ -10,6 +10,8 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Map;
+
 @RestController
 public class DeviceController {
 
@@ -20,9 +22,11 @@ public class DeviceController {
     protected Authenticator authenticator;
 
     @PostMapping(value = "/device", consumes = {MediaType.APPLICATION_JSON_VALUE}, produces = {MediaType.APPLICATION_JSON_VALUE})
-    public ResponseEntity<Device> registerDevice(@RequestHeader(name = "Authorization", required = false) String authHeader, @RequestBody Device device) throws FirebaseAuthException {
-        String uid = authenticator.authentication(authHeader);
-        if (uid.equals("401")) {
+    public ResponseEntity<Device> registerDevice(@RequestHeader(name = "Authorization", required = false) String authHeader, @RequestBody Device device) {
+        String uid;
+        try {
+            uid = authenticator.authentication(authHeader);
+        } catch (FirebaseAuthException e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);
         }
         String userId = device.getUserId();
@@ -38,9 +42,10 @@ public class DeviceController {
     }
 
     @GetMapping("/device/{deviceId}")
-    public ResponseEntity<Device> getDevice(@RequestHeader(name = "Authorization", required = true) String authHeader, @PathVariable("deviceId") String deviceId) throws FirebaseAuthException {
-        String uid = authenticator.authentication(authHeader);
-        if (uid.equals("401")) {
+    public ResponseEntity<Device> getDevice(@RequestHeader(name = "Authorization", required = true) String authHeader, @PathVariable("deviceId") String deviceId) {
+        try {
+            authenticator.authentication(authHeader);
+        } catch (FirebaseAuthException e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);
         }
         Device device = deviceRepository.findById(deviceId).block();
@@ -51,9 +56,10 @@ public class DeviceController {
     }
 
     @DeleteMapping("/device/{deviceId}")
-    public ResponseEntity<Device> deleteDevice(@RequestHeader(name = "Authorization", required = true) String authHeader, @PathVariable("deviceId") String deviceId) throws FirebaseAuthException {
-        String uid = authenticator.authentication(authHeader);
-        if (uid.equals("401")) {
+    public ResponseEntity<Device> deleteDevice(@RequestHeader(name = "Authorization", required = true) String authHeader, @PathVariable("deviceId") String deviceId) {
+        try {
+            authenticator.authentication(authHeader);
+        } catch (FirebaseAuthException e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);
         }
         Device device = deviceRepository.findById(deviceId).block();
@@ -64,19 +70,28 @@ public class DeviceController {
         return ResponseEntity.status(HttpStatus.NO_CONTENT).body(null);
     }
 
-    //TODO: to be fixed
-//    @PutMapping("/device/{deviceId}")
-//    public ResponseEntity<Device> updateDevice(@RequestHeader(name = "Authorization", required = true) String authHeader, @PathVariable("deviceId") String deviceId, @RequestBody User user) throws FirebaseAuthException {
-//        String uid = authenticator.authentication(authHeader);
-//        if (uid.equals("401")) {
-//            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);
-//        }
-//        Device device = deviceRepository.findById(uid).block();
-//        if (device == null) {
-//            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
-//        }
-//        device.setUserId(user.getUserId());
-//        deviceRepository.save(device).block();
-//        return ResponseEntity.status(HttpStatus.OK).body(null);
-//    }
+    @PutMapping("/device/{deviceId}")
+    public ResponseEntity<Device> updateDevice(@RequestHeader(name = "Authorization", required = true) String authHeader,
+                                               @PathVariable("deviceId") String deviceId,
+                                               @RequestBody Map<String, Object> body) {
+        String uid;
+        try {
+            uid = authenticator.authentication(authHeader);
+        } catch (FirebaseAuthException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);
+        }
+
+        Device device = deviceRepository.findById(deviceId).block();
+        if (device == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+        }
+        boolean isUserOwnerOfDevice = uid.equals(device.getUserId());
+        if (body.containsKey("user_id") && isUserOwnerOfDevice) {
+            device.setUserId(String.valueOf(body.get("user_id")));
+            deviceRepository.save(device).block();
+            return ResponseEntity.status(HttpStatus.OK).body(null);
+        } else {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(null);
+        }
+    }
 }
