@@ -87,7 +87,7 @@ public class UserController {
     }
 
     @PutMapping("/user/{userId}")
-    public ResponseEntity<User> editUser(@RequestHeader(name = "Authorization", required = true) String authHeader, @PathVariable("userId") String userId, @RequestBody User editedUser) throws JsonProcessingException {
+    public ResponseEntity<User> editUser(@RequestHeader(name = "Authorization", required = true) String authHeader, @PathVariable("userId") String userId, @RequestBody User editedUser) {
         String uid;
         try {
             uid = authenticator.authentication(authHeader);
@@ -115,7 +115,7 @@ public class UserController {
     }
 
     @GetMapping("/user/{userId}/devices")
-    public ResponseEntity<List<Device>> getUserDevices(@RequestHeader(name = "Authorization", required = true) String authHeader, @PathVariable("userId") String userId) {
+    public ResponseEntity<List<Device>> getUserDevices(@RequestHeader(name = "Authorization", required = true) String authHeader, @PathVariable("userId") String userId){
         String uid;
         try {
             uid = authenticator.authentication(authHeader);

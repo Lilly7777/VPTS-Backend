@@ -22,7 +22,7 @@ public class GPSController {
     protected Authenticator authenticator;
 
     @GetMapping("/gps/{gpsRecordId}")
-    public ResponseEntity<GPSRecord> getGPSRecord(@RequestHeader(name = "Authorization", required = true) String authHeader, @PathVariable("gpsRecordId") String gpsRecordId) {
+    public ResponseEntity<GPSRecord> getGPSRecord(@RequestHeader(name = "Authorization", required = true) String authHeader, @PathVariable("gpsRecordId") String gpsRecordId){
         try {
             authenticator.authentication(authHeader);
         } catch (FirebaseAuthException e) {

@@ -10,6 +10,8 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -22,19 +24,26 @@ public class DeviceController {
     protected Authenticator authenticator;
 
     @PostMapping(value = "/device", consumes = {MediaType.APPLICATION_JSON_VALUE}, produces = {MediaType.APPLICATION_JSON_VALUE})
-    public ResponseEntity<Device> registerDevice(@RequestHeader(name = "Authorization", required = false) String authHeader, @RequestBody Device device) {
+    public ResponseEntity<Device> registerDevice(@RequestHeader(name = "Authorization", required = false) String authHeader,
+                                                 @RequestBody Device inputDevice) {
         String uid;
         try {
             uid = authenticator.authentication(authHeader);
         } catch (FirebaseAuthException e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);
         }
-        String userId = device.getUserId();
+        String userId = inputDevice.getUserId();
         if (uid.equals(userId)) {
-            if (deviceRepository.findById(uid).block() != null) {
-                return ResponseEntity.status(HttpStatus.CONFLICT).body(null);
+            Device device = deviceRepository.findByCertificateNo(inputDevice.getCertificateNo()).block();
+            if (device == null) {
+                Device savedDevice = deviceRepository.save(inputDevice).block();
+                return ResponseEntity.status(HttpStatus.CREATED).body(savedDevice);
             } else {
-                return ResponseEntity.status(HttpStatus.CREATED).body(deviceRepository.save(device).block());
+                if (device.getUserId().equals(uid)) {
+                    return ResponseEntity.status(HttpStatus.CONFLICT).body(null);
+                } else {
+                    return ResponseEntity.status(HttpStatus.FORBIDDEN).body(null);
+                }
             }
         } else {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body(null);
@@ -88,8 +97,28 @@ public class DeviceController {
         boolean isUserOwnerOfDevice = uid.equals(device.getUserId());
         if (body.containsKey("user_id") && isUserOwnerOfDevice) {
             device.setUserId(String.valueOf(body.get("user_id")));
-            deviceRepository.save(device).block();
-            return ResponseEntity.status(HttpStatus.OK).body(null);
+            device = deviceRepository.save(device).block();
+            return ResponseEntity.status(HttpStatus.OK).body(device);
+        } else {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(null);
+        }
+    }
+
+    @GetMapping("/devices/user/{userId}")
+    public ResponseEntity<List<Device>> getAllDevicesByUser(@RequestHeader(name = "Authorization", required = true) String authHeader,
+                                                            @PathVariable("userId") String userId) {
+        String uid;
+        try {
+            uid = authenticator.authentication(authHeader);
+        } catch (FirebaseAuthException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);
+        }
+        if (userId.equals(uid)) {
+            List<Device> userDevices = deviceRepository.findAllByUserId(userId).collectList().block();
+            if(userDevices == null){
+                userDevices = new LinkedList<>();
+            }
+            return ResponseEntity.status(HttpStatus.OK).body(userDevices);
         } else {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body(null);
         }

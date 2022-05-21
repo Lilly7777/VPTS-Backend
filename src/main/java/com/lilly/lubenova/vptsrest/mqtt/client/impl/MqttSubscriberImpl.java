@@ -74,7 +74,6 @@ public class MqttSubscriberImpl implements MqttCallback {
 
     protected void config() {
         this.brokerUrl = String.format("%s://%s:%s", "tcp", this.broker, this.port);
-
         this.persistence = new MemoryPersistence();
         this.connectionOptions = new MqttConnectOptions();
         try {
